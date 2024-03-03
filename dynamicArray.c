@@ -65,7 +65,9 @@ void arrayAddItem(dynamic_array* container, void* item)
             return; 
         } 
     } 
-    container->array[container->size] = strdup(item);
+    void* item_copy = malloc(sizeof(void*));
+    memcpy(item_copy, item, sizeof(void*));
+    container->array[container->size] = item_copy;
     container->size++; 
 }
 
