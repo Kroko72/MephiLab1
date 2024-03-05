@@ -21,6 +21,7 @@ void printCharMenu()
     printf("3. Delete item by index\n");
     printf("4. Show array elements\n");
     printf("5. Go back\n");
+    printf("Choose action: ");
 }
 
 
@@ -35,13 +36,14 @@ void printStringMenu()
     printf("5. Extract words from string\n");
     printf("6. Find indexes of word in string\n");
     printf("7. Go back\n");
+    printf("Choose action: ");
 }
 
 
 int main()
 {
-    // модульное тестирование перед переходом в меню
-    if ((testDynamicArray() == -1) || (testStringMethods() == -1))
+    // module (fuzz?) tests before main logic
+    if ((firstTestDynamicArray() == -1) || (testStringMethods() == -1) || (secondTestDynamicArray() == -1))
     {
         return -1;
     }
@@ -50,9 +52,9 @@ int main()
 
     while (1)
     {
-        char input[70];
+        char input[30] = {0};
         printBaseMenu();
-        scanf("%69s", input);
+        scanf("%s", input);
 
         if (strcmp(input, "STOP") == 0)
         {
@@ -61,61 +63,50 @@ int main()
 
         int break_flag = 0;
         int array_created = 0;
-        int work_type = atoi(input);
+        int work_type = atoi(input);  // 1 - for char, 2 - for string
         switch (work_type)
         {
-            case 1:
+            case 1:  // working with chars
             {
-                dynamic_array* char_array;
+                dynamic_array* charArray;
                 while(1)
                 {
                     printCharMenu();
-                    scanf("%69s", input);
-                    int action = atoi(input);
+                    scanf("%s", input);
+                    int action = atoi(input);  // look at printCharMenu to find out possible values
                     switch (action)
                     {
-                        case 0:
+                        case 0:  // create (or recreate) array
                         {
                             if (array_created)
                             {
-                                arrayFree(char_array);
+                                arrayFree(charArray);
                             }
-                            arrayInit(&char_array, 16, printChar);
+                            arrayInit(&charArray, 16, GetCharFieldInfo());
                             array_created = 1;
                             printf("Array created\n");
                             break;
                         }
-                        case 1:
+                        case 1:  // add item to array
                         {
                             if (!array_created)
                             {
                                 printf("Array not created yet\n");
                                 break;
                             }
-                            printf("write symbol to add\n");
-                            scanf("%69s", input);
-                            arrayAddItem(char_array, &input[0]);
-                            printf("Item added\n");
-                            break;
-                        }
-                        case 2:
-                        {
-                            if (!array_created)
+                            printf("write symbol to add: ");
+                            scanf("%s", input);
+                            if(arrayAddItem(charArray, &input[0], sizeof (input[0]), GetCharFieldInfo()) == -1)
                             {
-                                printf("Array not created yet\n");
-                                break;
+                                printf("Item types does not match\n");
                             }
-                            int index;
-                            printf("Enter index: ");
-                            scanf("%d", &index);
-                            printf("\nEnter new value: ");
-                            scanf("%69s", input);
-                            printf("\n");
-                            arrayUpdateItem(char_array, index, &input[0]);
-                            printf("Item updated\n");
+                            else
+                            {
+                                printf("Item added\n");
+                            }
                             break;
                         }
-                        case 3:
+                        case 2:  // update the value of an array element
                         {
                             if (!array_created)
                             {
@@ -125,27 +116,65 @@ int main()
                             int index;
                             printf("Enter index: ");
                             scanf("%d", &index);
-                            printf("\n");
-                            arrayDeleteItem(char_array, index);
-                            printf("Item deleted\n");
+                            printf("Enter new value: ");
+                            scanf("%s", input);
+                            int response = arrayUpdateItem(charArray, index, &input[0], sizeof (input[0]), GetCharFieldInfo());
+                            switch (response)
+                            {
+                                case -2:
+                                {
+                                    printf("Item types does not matching\n");
+                                    break;
+                                }
+                                case -1:
+                                {
+                                    printf("Index out of bounds\n");
+                                    break;
+                                }
+                                default:
+                                {
+                                    printf("Item updated\n");
+                                    break;
+                                }
+                            }
                             break;
                         }
-                        case 4:
+                        case 3:  // delete an array element
+                        {
+                            if (!array_created)
+                            {
+                                printf("Array not created yet\n");
+                                break;
+                            }
+                            int index;
+                            printf("Enter index: ");
+                            scanf("%d", &index);
+                            if(arrayDeleteItem(charArray, index) == -1)
+                            {
+                                printf("Index out of bounds\n");
+                            }
+                            else
+                            {
+                                printf("Item deleted\n");
+                            }
+                            break;
+                        }
+                        case 4:  // print elements of array
                         {
                             if (!array_created){
                                 printf("Array not created yet\n");
                                 break;
                             }
                             printf("\nElements of array: \n");
-                            arrayPrint(char_array);
+                            arrayPrint(charArray);
                             break;
                         }
-                        case 5:
+                        case 5:  // go back to base menu
                         {
                             break_flag = 1;
                             if(array_created)
                             {
-                                arrayFree(char_array);
+                                arrayFree(charArray);
                             }
                             break;
                         }
@@ -162,29 +191,29 @@ int main()
                 }
                 break;
             }
-            
-            case 2:
+
+            case 2:  // working with strings
             {
-                dynamic_array* string_array;
+                dynamic_array* stringArray;
                 while(1)
                 {
                     printStringMenu();
                     scanf("%s", input);
-                    int action = atoi(input);
-                    switch (action)
+                    int action = atoi(input);  // look at printStringMenu to find out possible values
+                    switch(action)
                     {
-                        case 0:
+                        case 0:  // create (or recreate) array
                         {
-                            if (array_created)
+                            if(array_created)
                             {
-                                arrayFree(string_array);
+                                arrayFree(stringArray);
                             }
-                            arrayInit(&string_array, 16, printString);
+                            arrayInit(&stringArray, 16, GetStringFieldInfo());
                             array_created = 1;
                             printf("Array created\n");
                             break;
                         }
-                        case 1:
+                        case 1:  // add item to array
                         {
                             if (!array_created)
                             {
@@ -193,12 +222,17 @@ int main()
                             }
                             printf("Write string to add: ");
                             scanf(" %[^\n]", input);
-                            printf("\n");
-                            arrayAddItem(string_array, input);
-                            printf("String added\n");
+                            if(arrayAddItem(stringArray, (void*)&input, strlen(input) + 1, GetStringFieldInfo()) == -1)
+                            {
+                                printf("Item types does not match\n");
+                            }
+                            else
+                            {
+                                printf("String added\n");
+                            }
                             break;
                         }
-                        case 2:
+                        case 2:  // update the value of an array element
                         {
                             if (!array_created)
                             {
@@ -208,14 +242,30 @@ int main()
                             int index;
                             printf("Enter index: ");
                             scanf("%d", &index);
-                            printf("\nEnter new value: ");
+                            printf("Enter new string: ");
                             scanf(" %[^\n]", input);
-                            printf("\n");
-                            arrayUpdateItem(string_array, index, &input);
-                            printf("Item updated\n");
+                            int response = arrayUpdateItem(stringArray, index, &input, strlen (input) + 1, GetStringFieldInfo());
+                            switch (response)
+                            {
+                                case -2:
+                                {
+                                    printf("Item types does not matching\n");
+                                    break;
+                                }
+                                case -1:
+                                {
+                                    printf("Index out of bounds\n");
+                                    break;
+                                }
+                                default:
+                                {
+                                    printf("Item updated\n");
+                                    break;
+                                }
+                            }
                             break;
                         }
-                        case 3:
+                        case 3:  // delete an array element
                         {
                             if (!array_created)
                             {
@@ -225,28 +275,39 @@ int main()
                             int index;
                             printf("Enter index: ");
                             scanf("%d", &index);
-                            printf("\n");
-                            arrayDeleteItem(string_array, index);
-                            printf("Item deleted\n");
+                            if(arrayDeleteItem(stringArray, index) == -1)
+                            {
+                                printf("Index out of bounds\n");
+                            }
+                            else
+                            {
+                                printf("String deleted\n");
+                            }
                             break;
                         }
-                        case 4:
+                        case 4:  // print elements of array
                         {
-                            if (!array_created){
+                            if (!array_created)
+                            {
                                 printf("Array not created yet\n");
                                 break;
                             }
                             printf("\nElements of array: \n");
-                            arrayPrint(string_array);
+                            arrayPrint(stringArray);
                             break;
                         }
-                        case 5:
+                        case 5:  // extract words from string
                         {
                             printf("Enter string: ");
                             scanf(" %[^\n]", input);
-                            printf("\n");
                             dynamic_array* words = extractWords(input);
-                            if(words->size == 0){
+                            if(words == NULL)
+                            {
+                                printf("Array adding word error\n");
+                                break;
+                            }
+                            if(words->size == 0)
+                            {
                                 printf("No words found\n");
                             }
                             else
@@ -257,15 +318,20 @@ int main()
                             arrayFree(words);
                             break;
                         }
-                        case 6:
+                        case 6:  // find word indexes in a string
                         {
                             printf("Enter string: ");
                             scanf(" %[^\n]", input);
-                            printf("\nEnter keyword: ");
+                            printf("Enter keyword: ");
                             char keyword[70];
                             scanf("%s", keyword);
                             printf("\n");
                             dynamic_array* indexes = findWord(input, keyword);
+                            if(indexes == NULL)
+                            {
+                                printf("Find word function adding index error\n");
+                                break;
+                            }
                             if(indexes->size == 0)
                             {
                                 printf("No occurrences of the word were found\n");
@@ -278,12 +344,12 @@ int main()
                             arrayFree(indexes);
                             break;
                         }
-                        case 7:
+                        case 7:  // go back to base menu
                         {
                             break_flag = 1;
                             if(array_created)
                             {
-                                arrayFree(string_array);
+                                arrayFree(stringArray);
                             }
                             break;
                         }

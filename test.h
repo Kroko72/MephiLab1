@@ -5,7 +5,8 @@
 #include "stringMethods.h"
 #include <stdio.h>
 
-int testDynamicArray(); //return 0 - OK, -1 - ERROR
-int testStringMethods(); //return 0 - OK, -1 - ERROR
+int firstTestDynamicArray(); // return 0 - OK, -1 - ERROR
+int secondTestDynamicArray(); // return 0 - OK, -1 - ERROR
+int testStringMethods(); // return 0 - OK, -1 - ERROR
 
 #endif

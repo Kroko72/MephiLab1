@@ -1,35 +1,34 @@
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
 #include "dynamicArray.h"
 
 
-void printString(const void* to_print)
+void printString(const void* toPrint)
 {
-    printf("%s\n", (const char*)to_print);
+    printf("%s\n", (const char*)toPrint);
 }
 
 
-void printChar(const void* to_print)
+void printChar(const void* toPrint)
 {
-    printf("%c\n", *(const char*)to_print);
+    printf("%c\n", *(const char*)toPrint);
 }
 
 
-void printInt(const void* to_print)
+void printInt(const void* toPrint)
 {
-    printf("%d\n", *((int*)to_print));
+    printf("%d\n", *((int*)toPrint));
 }
 
 
 dynamic_array* extractWords(char str[])
 {
-    dynamic_array* words; 
-    arrayInit(&words, 16, printString);
+    dynamic_array* words;
+    arrayInit(&words, 16, GetStringFieldInfo());
     int i = 0;
     int start = 0;
-    int end = 0;
     size_t len = strlen(str);
     while (i < len) {
         while (i < len && !isalpha(str[i])) {
@@ -40,11 +39,13 @@ dynamic_array* extractWords(char str[])
             while (i < len && isalpha(str[i])) {
                 i++;
             }
-            end = i;
-            char* word = (char*)malloc(end - start + 1);
-            strncpy(word, &str[start], end - start);
-            word[end - start] = '\0';
-            arrayAddItem(words, word);
+            char* word = malloc(i - start + 1);
+            strncpy(word, &str[start], i - start);
+            word[i - start] = '\0';
+            if(arrayAddItem(words, word, sizeof (word) + 1, GetStringFieldInfo()) == -1)
+            {
+                return NULL;
+            }
             free(word);
         }
     }
@@ -55,10 +56,9 @@ dynamic_array* extractWords(char str[])
 dynamic_array* findWord(char str[], char keyword[])
 {
     dynamic_array* indexes;
-    arrayInit(&indexes, 16, printInt);
+    arrayInit(&indexes, 16, GetIntFieldInfo());
     int i = 0;
     int start = 0;
-    int end = 0;
     size_t len = strlen(str);
     while (i < len) {
         while (i < len && !isalpha(str[i]))
@@ -72,13 +72,20 @@ dynamic_array* findWord(char str[], char keyword[])
             {
                 i++;
             }
-            end = i;
-            char* word = (char*)malloc(end - start + 1);
-            strncpy(word, &str[start], end - start);
-            word[end - start] = '\0';
+            char* word = malloc(i - start + 1);
+            if(!word)
+            {
+                printf("Memory allocation error\n");
+                exit(-1);
+            }
+            strncpy(word, &str[start], i - start);
+            word[i - start] = '\0';
             if(strcmp(word, keyword) == 0)
             {
-                arrayAddItem(indexes, &start);
+                if(arrayAddItem(indexes, &start, sizeof (word) + 1, GetIntFieldInfo()) == -1)
+                {
+                    return NULL;
+                }
             }
             free(word);
         }

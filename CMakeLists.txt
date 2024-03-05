@@ -11,4 +11,5 @@ add_executable(untitled lab1.c
         test.h
         dynamicArray.c
         dynamicArray.h
-        stringMethods.c)
+        fieldInfo.h
+        fieldInfo.c)
