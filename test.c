@@ -133,31 +133,38 @@ int secondTestDynamicArray()
 int testStringMethods() {
     dynamic_array *test_extract_array1 = extractWords("Hello, world! How are you?");
     dynamic_array *test_extract_array2 = extractWords("");
-    if (test_extract_array1->size != 5) {
+    if (test_extract_array1->size != 5)
+    {
         printf("0. extractWords error\n");
         return -1;
     }
-    if (test_extract_array2->size != 0) {
+    if (test_extract_array2->size != 0)
+    {
         printf("1. extractWords error\n");
         return -1;
     }
-    if (strcmp((char *) test_extract_array1->array[0], "Hello") != 0) {
+    if (strcmp((char *) test_extract_array1->array[0], "Hello") != 0)
+    {
         printf("2. extractWords error\n");
         return -1;
     }
-    if (strcmp((char *) test_extract_array1->array[1], "world") != 0) {
+    if (strcmp((char *) test_extract_array1->array[1], "world") != 0)
+    {
         printf("3. extractWords error\n");
         return -1;
     }
-    if (strcmp((char *) test_extract_array1->array[2], "How") != 0) {
+    if (strcmp((char *) test_extract_array1->array[2], "How") != 0)
+    {
         printf("4. extractWords error\n");
         return -1;
     }
-    if (strcmp((char *) test_extract_array1->array[3], "are") != 0) {
+    if (strcmp((char *) test_extract_array1->array[3], "are") != 0)
+    {
         printf("5. extractWords error\n");
         return -1;
     }
-    if (strcmp((char *) test_extract_array1->array[4], "you") != 0) {
+    if (strcmp((char *) test_extract_array1->array[4], "you") != 0)
+    {
         printf("6. extractWords error\n");
         return -1;
     }
